@@ -19,5 +19,5 @@
 - проектная работа №13 реализация части функционала бэкэнда на node.js.
 
 
-### Ссылка на проект:
-https://timurisrafilov.github.io/mesto/
+### Ссылка на репо:
+https://github.com/TimurIsrafilov/express-mesto-gha.git
