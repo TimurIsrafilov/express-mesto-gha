@@ -21,6 +21,9 @@ app.use((req, res, next) => {
 });
 app.use("/users", usersRouter);
 app.use("/cards", cardsRouter);
+app.use("/*", function (req, res) {
+  res.status(404).send({ message: "Запрошенная страница не найдена" });
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

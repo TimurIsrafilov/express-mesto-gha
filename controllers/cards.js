@@ -24,18 +24,37 @@ const createCard = (req, res) => {
     });
 };
 
+// const deleteCardByID = (req, res) => {
+//   return Card.findByIdAndRemove(req.params.cardId).orFail()
+//     .then((card) => res.status(200).send(card))
+//     .catch((error) => {
+//       if (error.name === "CastError") {
+//         res
+//           .status(400)
+//           .send({
+//             message: `Не найдена карточка с указанным id: ${req.params.cardId}`,
+//           });
+//       } else {
+//         res.status(500).send({ message: "ошибка сервера" });
+//       }
+//     });
+// };
+
 const deleteCardByID = (req, res) => {
-  return Card.findByIdAndRemove(req.params.cardId)
+  return Card.findByIdAndRemove(req.params.cardId).orFail()
     .then((card) => res.status(200).send(card))
     .catch((error) => {
-      if (error.name === "CastError") {
-        res
-          .status(400)
-          .send({
-            message: `Не найдена карточка с указанным id: ${req.params.cardId}`,
-          });
+      if (req.params.cardId.length !== 24) {
+        res.status(400).send({ message: "Переданы некорректные данные" });
+      } else if (
+        req.params.cardId.length === 24 &&
+        error.name === "DocumentNotFoundError"
+      ) {
+        res.status(404).send({
+          message: `Передан несуществующий id карточки: ${req.params.cardId}`,
+        });
       } else {
-        res.status(500).send({ message: "ошибка сервера" });
+        res.status(500).send({ message: "Ошибка сервера" });
       }
     });
 };
