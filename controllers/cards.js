@@ -26,7 +26,7 @@ const createCard = (req, res) => {
 
 const deleteCardByID = (req, res) => {
   return Card.findByIdAndRemove(req.params.cardId)
-    .then((user) => res.status(200).send(user))
+    .then((card) => res.status(200).send(card))
     .catch((error) => {
       if (error.name === "CastError") {
         res.status(400).send({ message: "переданы некорректные данные" });
@@ -42,9 +42,9 @@ const putCardLike = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-    .then((user) => res.status(200).send(user))
+    .then((card) => res.status(200).send(card))
     .catch((error) => {
-      if (error.name === "ValidationError") {
+      if (error.name === "CastError") {
         res.status(400).send({ message: "переданы некорректные данные" });
       } else {
         res.status(500).send({ message: "ошибка сервера" });
@@ -58,9 +58,9 @@ const deleteCardLike = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .then((user) => res.status(200).send(user))
+    .then((card) => res.status(200).send(card))
     .catch((error) => {
-      if (error.name === "ValidationError") {
+      if (error.name === "CastError") {
         res.status(400).send({ message: "переданы некорректные данные" });
       } else {
         res.status(500).send({ message: "ошибка сервера" });

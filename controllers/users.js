@@ -72,7 +72,7 @@ const updateUserAvatar = (req, res) => {
       upsert: true,
     }
   )
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(200).send(user))
     .catch((error) => {
       if (error.name === "ValidationError") {
         res.status(400).send({ message: "переданы некорректные данные" });
