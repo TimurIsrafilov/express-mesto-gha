@@ -5,9 +5,9 @@ const getCards = (req, res) => {
     .then((cards) => res.status(200).send(cards))
     .catch((error) => {
       if (error.name === "CastError") {
-        res.status(400).send({ message: "переданы некорректные данные" });
+        res.status(400).send({ message: "Переданы некорректные данные" });
       } else {
-        res.status(500).send({ message: "ошибка сервера" });
+        res.status(500).send({ message: "Ошибка сервера" });
       }
     });
 };
@@ -17,9 +17,9 @@ const createCard = (req, res) => {
     .then((card) => res.status(201).send(card))
     .catch((error) => {
       if (error.name === "ValidationError") {
-        res.status(400).send({ message: "переданы некорректные данные" });
+        res.status(400).send({ message: "Переданы некорректные данные" });
       } else {
-        res.status(500).send({ message: "ошибка сервера" });
+        res.status(500).send({ message: "Ошибка сервера" });
       }
     });
 };
@@ -29,7 +29,11 @@ const deleteCardByID = (req, res) => {
     .then((card) => res.status(200).send(card))
     .catch((error) => {
       if (error.name === "CastError") {
-        res.status(400).send({ message: "переданы некорректные данные" });
+        res
+          .status(400)
+          .send({
+            message: `Не найдена карточка с указанным id: ${req.params.cardId}`,
+          });
       } else {
         res.status(500).send({ message: "ошибка сервера" });
       }
@@ -42,12 +46,20 @@ const putCardLike = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
+    .orFail()
     .then((card) => res.status(200).send(card))
     .catch((error) => {
-      if (error.name === "CastError") {
-        res.status(400).send({ message: "переданы некорректные данные" });
+      if (req.params.cardId.length !== 24) {
+        res.status(400).send({ message: "Переданы некорректные данные" });
+      } else if (
+        req.params.cardId.length === 24 &&
+        error.name === "DocumentNotFoundError"
+      ) {
+        res.status(404).send({
+          message: `Передан несуществующий id карточки: ${req.params.cardId}`,
+        });
       } else {
-        res.status(500).send({ message: "ошибка сервера" });
+        res.status(500).send({ message: "Ошибка сервера" });
       }
     });
 };
@@ -58,12 +70,20 @@ const deleteCardLike = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
+    .orFail()
     .then((card) => res.status(200).send(card))
     .catch((error) => {
-      if (error.name === "CastError") {
-        res.status(400).send({ message: "переданы некорректные данные" });
+      if (req.params.cardId.length !== 24) {
+        res.status(400).send({ message: "Переданы некорректные данные" });
+      } else if (
+        req.params.cardId.length === 24 &&
+        error.name === "DocumentNotFoundError"
+      ) {
+        res.status(404).send({
+          message: `Передан несуществующий id карточки: ${req.params.cardId}`,
+        });
       } else {
-        res.status(500).send({ message: "ошибка сервера" });
+        res.status(500).send({ message: "Ошибка сервера" });
       }
     });
 };

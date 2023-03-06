@@ -5,9 +5,9 @@ const getUsers = (req, res) => {
     .then((users) => res.status(200).send(users))
     .catch((error) => {
       if (error.name === "CastError") {
-        res.status(400).send({ message: "переданы некорректные данные" });
+        res.status(400).send({ message: "Переданы некорректные данные" });
       } else {
-        res.status(500).send({ message: "ошибка сервера" });
+        res.status(500).send({ message: "Ошибка сервера" });
       }
     });
 };
@@ -18,12 +18,12 @@ const getUserByID = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((error) => {
       if (req.params.userId.length !== req.user._id.length) {
-        res.status(400).send({ message: "переданы некорректные данные" });
+        res.status(400).send({ message: "Переданы некорректные данные" });
       } else if (
         req.params.userId.length === req.user._id.length &&
         error.name === "DocumentNotFoundError"
       ) {
-        res.status(404).send({ message: "пользователь не найден" });
+        res.status(404).send({ message: `Не найден пользователь с указанным id: ${req.params.userId}` });
       } else {
         res.status(500).send({ message: "ошибка сервера" });
       }
