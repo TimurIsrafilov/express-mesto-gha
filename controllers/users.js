@@ -14,9 +14,15 @@ const getUsers = (req, res) => {
 
 const getUserByID = (req, res) => {
   return User.findById(req.params.userId)
+    .orFail()
     .then((user) => res.status(200).send(user))
     .catch((error) => {
-      if (error.name === "CastError") {
+      if (req.params.userId.length !== req.user._id.length) {
+        res.status(400).send({ message: "переданы некорректные данные" });
+      } else if (
+        req.params.userId.length === req.user._id.length &&
+        error.name === "DocumentNotFoundError"
+      ) {
         res.status(404).send({ message: "пользователь не найден" });
       } else {
         res.status(500).send({ message: "ошибка сервера" });
@@ -48,7 +54,7 @@ const updateUserProfile = (req, res) => {
   )
     .then((user) => res.status(200).send(user))
     .catch((error) => {
-      if (error.name === "CastError") {
+      if (error.name === "ValidationError") {
         res.status(400).send({ message: "переданы некорректные данные" });
       } else {
         res.status(500).send({ message: "ошибка сервера" });
@@ -68,7 +74,7 @@ const updateUserAvatar = (req, res) => {
   )
     .then((user) => res.status(201).send(user))
     .catch((error) => {
-      if (error.name === "CastError") {
+      if (error.name === "ValidationError") {
         res.status(400).send({ message: "переданы некорректные данные" });
       } else {
         res.status(500).send({ message: "ошибка сервера" });
