@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "npx eslint",
-    "start": "node app.js",
+    "lint": "npx eslint .",
+    "start": "nodemon --inspect app.js",
     "dev": "nodemon --inspect app.js"
   },
   "repository": {
@@ -21,17 +21,15 @@
   "homepage": "https://github.com/yandex-praktikum/express-mesto-gha#readme",
   "devDependencies": {
     "eslint": "^8.35.0",
-    "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-airbnb-base": "^2.25.2'",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-airbnb-base": "^0.0.1-security",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-jsx-a11y": "^6.7.1",
-    "eslint-plugin-react": "^7.32.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
     "nodemon": "^2.0.21"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
     "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
     "mongoose": "^7.0.0"
   }
 }

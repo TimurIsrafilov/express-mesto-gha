@@ -4,7 +4,7 @@
 // PATCH /users/me — обновляет профиль
 // PATCH /users/me/avatar — обновляет аватар
 
-const usersRouter = require("express").Router();
+const usersRouter = require('express').Router();
 
 const {
   getUsers,
@@ -12,12 +12,12 @@ const {
   createUser,
   updateUserProfile,
   updateUserAvatar,
-} = require("../controllers/users");
+} = require('../controllers/users');
 
-usersRouter.get("/", getUsers);
-usersRouter.get("/:userId", getUserByID);
-usersRouter.post("/", createUser);
-usersRouter.patch("/me", updateUserProfile);
-usersRouter.patch("/me/avatar", updateUserAvatar);
+usersRouter.get('/', getUsers);
+usersRouter.get('/:userId', getUserByID);
+usersRouter.post('/', createUser);
+usersRouter.patch('/me', updateUserProfile);
+usersRouter.patch('/me/avatar', updateUserAvatar);
 
 module.exports = usersRouter;
