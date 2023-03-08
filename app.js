@@ -13,7 +13,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  max: 5, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   message: 'Too many request from this IP',
@@ -27,12 +27,12 @@ app.use((req, res, next) => {
 
   next();
 });
+app.use(limiter); // заработал лимитер! спс! с праздничком вас )!
 app.use('/users', usersRouter);
 app.use('/cards', cardsRouter);
 app.use('/*', (req, res) => {
   res.status(NOT_FOUND_ERROR).send({ message: 'Запрошенная страница не найдена' });
 });
-app.use(limiter);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

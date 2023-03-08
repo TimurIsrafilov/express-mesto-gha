@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "npx eslint .",
-    "start": "nodemon --inspect app.js",
+    "start": "node app.js",
     "dev": "nodemon --inspect app.js"
   },
   "repository": {
@@ -22,7 +22,6 @@
   "devDependencies": {
     "eslint": "^8.35.0",
     "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-plugin-airbnb-base": "^0.0.1-security",
     "eslint-plugin-import": "^2.27.5",
     "nodemon": "^2.0.21"
   },
