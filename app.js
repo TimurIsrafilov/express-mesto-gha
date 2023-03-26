@@ -34,7 +34,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(limiter);
-app.use(errors());
+
 
 app.post('/signin', login);
 app.post('/signup', celebrate({
@@ -49,6 +49,7 @@ app.post('/signup', celebrate({
 
 // авторизация
 app.use(auth);
+app.use(errors());
 
 // роуты, которым авторизация нужна
 app.use('/users', auth, usersRouter);
