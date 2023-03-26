@@ -1,12 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-// const {
-//   BAD_REQUEST,
-//   UNAUTHORIZED,
-//   NOT_FOUND_ERROR,
-//   SERVER_ERROR,
-// } = require('../utils/utils');
 
 const NotFoundError = require('../errors/not-found-error');
 const ValidatationError = require('../errors/validation-error');
@@ -115,10 +109,8 @@ const getUser = (req, res, next) => {
 
   req.user = payload;
 
-  next();
-
   User.findById(payload._id)
-    .orFail()
+    .orFail(() => new NotFoundError(`Не найден пользователь с указанным id: ${payload._id}`))
     .then((user) => res.send(user))
     .catch(next);
 };

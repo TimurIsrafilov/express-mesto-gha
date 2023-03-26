@@ -1,17 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const rateLimit = require('express-rate-limit');
-const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 const app = express();
 
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
+const NotFoundError = require('./errors/not-found-error');
 
 const { createUser, login } = require('./controllers/users');
-
-const { NOT_FOUND_ERROR } = require('./utils/utils');
+const auth = require('./middlewares/auth');
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
@@ -24,7 +23,6 @@ const limiter = rateLimit({
 });
 
 app.use(express.json());
-
 app.use((req, res, next) => {
   // req.user = {
   //   _id: '64036d4a3e72ba5c0be45df2',
@@ -34,17 +32,21 @@ app.use((req, res, next) => {
 });
 app.use(limiter);
 
-
 app.post('/signin', login);
 app.post('/signup', createUser);
 
-// // авторизация
+// авторизация
 app.use(auth);
+
 // роуты, которым авторизация нужна
 app.use('/users', auth, usersRouter);
 app.use('/cards', auth, cardsRouter);
-app.use('/*', (req, res) => {
-  res.status(NOT_FOUND_ERROR).send({ message: 'Запрошенная страница не найдена' });
+// app.use('/*', (req, res, next) => {
+//   res.status(404).send({ message: 'Запрошенная страница не найдена' });
+// });
+
+app.use('/*', (req, res, next) => {
+  next(new NotFoundError('Запрошенная страница не найдена'));
 });
 
 app.use((err, req, res, next) => {

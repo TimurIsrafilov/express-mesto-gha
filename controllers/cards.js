@@ -1,43 +1,44 @@
 const Card = require('../models/card');
-const {
-  BAD_REQUEST,
-  NOT_FOUND_ERROR,
-  SERVER_ERROR,
-} = require('../utils/utils');
 
-const getCards = (req, res) => Card.find({})
+const NotFoundError = require('../errors/not-found-error');
+const ValidatationError = require('../errors/validation-error');
+
+const getCards = (req, res, next) => Card.find({})
   .then((cards) => res.send(cards))
-  .catch(() => res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' }));
+  .catch(next);
 
-const createCard = (req, res) => Card.create({
+const createCard = (req, res, next) => Card.create({
   ...{ name: req.body.name, link: req.body.link, owner: req.user._id },
 })
   .then((card) => res.status(201).send(card))
   .catch((error) => {
     if (error.name === 'ValidationError') {
-      res
-        .status(BAD_REQUEST)
-        .send({ message: 'Переданы некорректные данные' });
-    } else {
-      res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
-    }
+      return next(new ValidatationError('переданы некорректные данные'));
+    } return next();
   });
 
-const deleteCardByID = (req, res) => Card.findByIdAndRemove(req.params.cardId).orFail()
-  .then((card) => res.send(card))
-  .catch((error) => {
-    if (error.name === 'CastError') {
-      res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-    } else if (error.name === 'DocumentNotFoundError') {
-      res.status(NOT_FOUND_ERROR).send({
-        message: `Передан несуществующий id карточки: ${req.params.cardId}`,
+const deleteCardByID = (req, res, next) => Card.findById(req.params.cardId)
+  .orFail(next)
+  .then((user) => {
+    const { ownerID } = req.user._id;
+    const { userID } = user.owner;
+    if (ownerID !== userID) {
+      return next(new ValidatationError('переданы некорректные данные'));
+    }
+    Card.findByIdAndRemove(req.params.cardId)
+      .orFail()
+      .then((card) => res.send(card))
+      .catch((error) => {
+        if (error.name === 'CastError') {
+          return next(new ValidatationError('переданы некорректные данные'));
+        }
+        if (error.name === 'DocumentNotFoundError') {
+          return next(new NotFoundError(`Не найдена карта с указанным id: ${req.params.cardId}`));
+        } return next();
       });
-    } else {
-      res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
-    }
   });
 
-const putCardLike = (req, res) => Card.findByIdAndUpdate(
+const putCardLike = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $addToSet: { likes: req.user._id } },
   { new: true },
@@ -46,17 +47,13 @@ const putCardLike = (req, res) => Card.findByIdAndUpdate(
   .then((card) => res.send(card))
   .catch((error) => {
     if (error.name === 'CastError') {
-      res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-    } else if (error.name === 'DocumentNotFoundError') {
-      res.status(NOT_FOUND_ERROR).send({
-        message: `Передан несуществующий id карточки: ${req.params.cardId}`,
-      });
-    } else {
-      res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
-    }
+      return next(new ValidatationError('переданы некорректные данные'));
+    } if (error.name === 'DocumentNotFoundError') {
+      return next(new NotFoundError(`Передан несуществующий id карточки: ${req.params.cardId}`));
+    } return next();
   });
 
-const deleteCardLike = (req, res) => Card.findByIdAndUpdate(
+const deleteCardLike = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $pull: { likes: req.user._id } },
   { new: true },
@@ -65,14 +62,10 @@ const deleteCardLike = (req, res) => Card.findByIdAndUpdate(
   .then((card) => res.send(card))
   .catch((error) => {
     if (error.name === 'CastError') {
-      res.status(BAD_REQUEST).send({ message: 'Переданы некорректные данные' });
-    } else if (error.name === 'DocumentNotFoundError') {
-      res.status(NOT_FOUND_ERROR).send({
-        message: `Передан несуществующий id карточки: ${req.params.cardId}`,
-      });
-    } else {
-      res.status(SERVER_ERROR).send({ message: 'Ошибка сервера' });
-    }
+      return next(new ValidatationError('переданы некорректные данные'));
+    } if (error.name === 'DocumentNotFoundError') {
+      return next(new NotFoundError(`Передан несуществующий id карточки: ${req.params.cardId}`));
+    } return next();
   });
 
 module.exports = {
