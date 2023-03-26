@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const rateLimit = require('express-rate-limit');
+const auth = require('./middlewares/auth');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -9,7 +10,6 @@ const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
 const { createUser, login } = require('./controllers/users');
-const auth = require('./middlewares/auth');
 
 const { NOT_FOUND_ERROR } = require('./utils/utils');
 
@@ -24,28 +24,25 @@ const limiter = rateLimit({
 });
 
 app.use(express.json());
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '64036d4a3e72ba5c0be45df2',
-//   };
 
-//   next();
-// });
+app.use((req, res, next) => {
+  // req.user = {
+  //   _id: '64036d4a3e72ba5c0be45df2',
+  // };
+
+  next();
+});
 app.use(limiter);
+
 
 app.post('/signin', login);
 app.post('/signup', createUser);
 
 // // авторизация
-// app.use(auth);
-
+app.use(auth);
 // роуты, которым авторизация нужна
-app.use('/users',
-// auth,
-usersRouter);
-app.use('/cards',
-//  auth,
- cardsRouter);
+app.use('/users', auth, usersRouter);
+app.use('/cards', auth, cardsRouter);
 app.use('/*', (req, res) => {
   res.status(NOT_FOUND_ERROR).send({ message: 'Запрошенная страница не найдена' });
 });
