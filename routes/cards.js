@@ -5,7 +5,7 @@
 // DELETE /cards/:cardId/likes — убрать лайк с карточки
 
 const cardsRouter = require('express').Router();
-const { celebrate, Joi } = require('celebrate');
+// const { celebrate, Joi } = require('celebrate');
 
 const {
   getCards,

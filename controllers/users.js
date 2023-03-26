@@ -33,7 +33,14 @@ const createUser = (req, res, next) => {
         password: hash,
       },
     }))
-    .then((user) => res.status(201).send(user))
+    .then(() => res.status(201).send(
+      {
+        name: req.body.name,
+        about: req.body.about,
+        avatar: req.body.avatar,
+        email: req.body.email,
+      },
+    ))
     .catch((error) => {
       if (error.name === 'ValidationError') {
         return next(new ValidatationError('переданы некорректные данные'));

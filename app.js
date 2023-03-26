@@ -5,8 +5,8 @@ const rateLimit = require('express-rate-limit');
 const { PORT = 3000 } = process.env;
 const app = express();
 
-const { celebrate, Joi } = require('celebrate');
-const { errors } = require('celebrate');
+// const { celebrate, Joi } = require('celebrate');
+// const { errors } = require('celebrate');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const NotFoundError = require('./errors/not-found-error');
@@ -35,19 +35,21 @@ app.use((req, res, next) => {
 app.use(limiter);
 
 app.post('/signin', login);
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(/(https?:\/\/)?([\w.]+)/).required(),
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
-}), createUser);
+app.post('/signup',
+//  celebrate({
+//   body: Joi.object().keys({
+//     name: Joi.string().min(2).max(30),
+//     about: Joi.string().min(2).max(30),
+//     avatar: Joi.string().regex(/(https?:\/\/)?([\w.]+)/),
+//     email: Joi.string().required().email(),
+//     password: Joi.string().required().min(8),
+//   }),
+// }),
+createUser);
 
 // авторизация
 app.use(auth);
-app.use(errors());
+// app.use(errors());
 
 // роуты, которым авторизация нужна
 app.use('/users', auth, usersRouter);
