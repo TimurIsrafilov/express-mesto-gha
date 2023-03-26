@@ -36,12 +36,16 @@ app.use(limiter);
 app.post('/signin', login);
 app.post('/signup', createUser);
 
-// авторизация
-app.use(auth);
+// // авторизация
+// app.use(auth);
 
 // роуты, которым авторизация нужна
-app.use('/users', auth, usersRouter);
-app.use('/cards', auth, cardsRouter);
+app.use('/users',
+// auth,
+usersRouter);
+app.use('/cards',
+//  auth,
+ cardsRouter);
 app.use('/*', (req, res) => {
   res.status(NOT_FOUND_ERROR).send({ message: 'Запрошенная страница не найдена' });
 });
