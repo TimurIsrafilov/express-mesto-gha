@@ -5,13 +5,13 @@ const rateLimit = require('express-rate-limit');
 const { PORT = 3000 } = process.env;
 const app = express();
 
+const { celebrate, Joi } = require('celebrate');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const NotFoundError = require('./errors/not-found-error');
 
 const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const { celebrate, Joi } = require('celebrate');
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
@@ -36,8 +36,8 @@ app.use(limiter);
 app.post('/signin', login);
 app.post('/signup', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2).max(30),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
   }),
 }), createUser);
 
@@ -55,7 +55,7 @@ app.use('/*', (req, res, next) => {
   next(new NotFoundError('Запрошенная страница не найдена'));
 });
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
 
