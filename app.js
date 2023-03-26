@@ -6,6 +6,7 @@ const { PORT = 3000 } = process.env;
 const app = express();
 
 const { celebrate, Joi } = require('celebrate');
+const { errors } = require('celebrate');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 const NotFoundError = require('./errors/not-found-error');
@@ -43,6 +44,7 @@ app.post('/signup', celebrate({
 
 // авторизация
 app.use(auth);
+app.use(errors());
 
 // роуты, которым авторизация нужна
 app.use('/users', auth, usersRouter);
