@@ -10,7 +10,7 @@ const { errors } = require('celebrate');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
-const { createUser, login } = require('./controllers/users');
+const { createUser, login, updateUserProfile } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 
 const { NOT_FOUND_ERROR } = require('./utils/utils');
@@ -46,11 +46,31 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(/(https?:\/\/)?([\w.]+)/),
+    avatar: Joi.string().regex(/(https?:\/\/)?([\w\.]+)\.([a-z]{2,6}\.?)(\/[\w\.]*)*\/?$/),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),
 }), createUser);
+
+app.patch('/users/me', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+  }),
+}), updateUserProfile);
+
+app.patch('/users/me/avatar', celebrate({
+  body: Joi.object().keys({
+    avatar: Joi.string().regex(/(https?:\/\/)?([\w\.]+)\.([a-z]{2,6}\.?)(\/[\w\.]*)*\/?$/),
+  }),
+}), usersRouter);
+
+app.post('/cards', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().regex(/(https?:\/\/)?([\w\.]+)\.([a-z]{2,6}\.?)(\/[\w\.]*)*\/?$/),
+  }),
+}), login);
 
 // авторизация
 app.use(auth);
@@ -63,6 +83,8 @@ app.use('/cards', auth, cardsRouter);
 app.use('/*', (req, res) => {
   res.status(NOT_FOUND_ERROR).send({ message: 'Запрошенная страница не найдена' });
 });
+
+
 
 app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
