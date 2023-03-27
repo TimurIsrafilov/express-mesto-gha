@@ -20,8 +20,10 @@ const createCard = (req, res, next) => Card.create({
 const deleteCardByID = (req, res, next) => Card.findById(req.params.cardId)
   .orFail(next)
   .then((user) => {
-    const { ownerID } = req.user._id;
-    const { userID } = user.owner;
+    // const { ownerID } = req.user._id;
+    // const { userID } = user.owner;
+    const ownerID = JSON.stringify(req.user._id);
+    const userID = JSON.stringify(user.owner);
     if (ownerID !== userID) {
       return next(new ValidatationError('переданы некорректные данные'));
     } return Card.findByIdAndRemove(req.params.cardId)
