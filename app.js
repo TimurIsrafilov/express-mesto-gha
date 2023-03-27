@@ -85,7 +85,7 @@ app.patch('/users/me', celebrate({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
   }),
-}), updateUserProfile);
+}), usersRouter);
 
 app.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
@@ -110,13 +110,13 @@ app.put('/cards/:cardId/likes', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().alphanum().length(24),
   }),
-}), putCardLike);
+}), cardsRouter);
 
 app.delete('/cards/:cardId/likes', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().alphanum().length(24),
   }),
-}), deleteCardLike);
+}), cardsRouter);
 
 // авторизация
 app.use(auth);
