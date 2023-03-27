@@ -10,22 +10,11 @@ const { errors } = require('celebrate');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
+const linkPattern = /(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/;
+
 const {
-  getUsers,
-  getUser,
-  getUserByID,
-  createUser,
-  updateUserProfile,
-  updateUserAvatar,
-  login,
-} = require("./controllers/users");
-const {
-  getCards,
-  createCard,
-  deleteCardByID,
-  putCardLike,
-  deleteCardLike,
-} = require("./controllers/cards");
+  getUser, getUserByID, createUser, login,
+} = require('./controllers/users');
 
 const auth = require('./middlewares/auth');
 
@@ -62,7 +51,7 @@ app.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(/(https?:\/\/)?([\w\.]+)\.([a-z]{2,6}\.?)(\/[\w\.]*)*\/?$/),
+    avatar: Joi.string().regex(linkPattern),
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),
@@ -89,14 +78,14 @@ app.patch('/users/me', celebrate({
 
 app.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().regex(/(https?:\/\/)?([\w\.]+)\.([a-z]{2,6}\.?)(\/[\w\.]*)*\/?$/),
+    avatar: Joi.string().regex(linkPattern),
   }),
 }), usersRouter);
 
 app.post('/cards', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required().regex(/(https?:\/\/)?([\w\.]+)\.([a-z]{2,6}\.?)(\/[\w\.]*)*\/?$/),
+    link: Joi.string().required().regex(linkPattern),
   }),
 }), cardsRouter);
 
@@ -104,7 +93,7 @@ app.delete('/cards/:cardId', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().alphanum().length(24),
   }),
-}), deleteCardByID);
+}), cardsRouter);
 
 app.put('/cards/:cardId/likes', celebrate({
   params: Joi.object().keys({
@@ -130,7 +119,7 @@ app.use('/*', (req, res) => {
   res.status(NOT_FOUND_ERROR).send({ message: 'Запрошенная страница не найдена' });
 });
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
 

@@ -24,8 +24,7 @@ const deleteCardByID = (req, res, next) => Card.findById(req.params.cardId)
     const { userID } = user.owner;
     if (ownerID !== userID) {
       return next(new ValidatationError('переданы некорректные данные'));
-    }
-    Card.findByIdAndRemove(req.params.cardId)
+    } return Card.findByIdAndRemove(req.params.cardId)
       .orFail()
       .then((card) => res.send(card))
       .catch((error) => {

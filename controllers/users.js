@@ -29,7 +29,7 @@ const getUser = (req, res, next) => {
 
   req.user = payload;
 
-  User.findById(payload._id)
+  return User.findById(payload._id)
     .orFail(() => new NotFoundError(`Не найден пользователь с указанным id: ${payload._id}`))
     .then((user) => res.send(user))
     .catch(next);
