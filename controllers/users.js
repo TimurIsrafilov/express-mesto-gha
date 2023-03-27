@@ -11,6 +11,30 @@ const getUsers = (req, res, next) => User.find({})
   .then((users) => res.send(users))
   .catch(next);
 
+const getUser = (req, res, next) => {
+  const { authorization } = req.headers;
+
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    return next(new AuthorizationError('Необходима авторизация'));
+  }
+
+  const token = authorization.replace('Bearer ', '');
+  let payload;
+
+  try {
+    payload = jwt.verify(token, 'secret-key');
+  } catch (err) {
+    return next(new AuthorizationError('Необходима авторизация'));
+  }
+
+  req.user = payload;
+
+  User.findById(payload._id)
+    .orFail(() => new NotFoundError(`Не найден пользователь с указанным id: ${payload._id}`))
+    .then((user) => res.send(user))
+    .catch(next);
+};
+
 const getUserByID = (req, res, next) => User.findById(req.params.userId)
   .orFail()
   .then((user) => res.send(user))
@@ -98,36 +122,12 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
-const getUser = (req, res, next) => {
-  const { authorization } = req.headers;
-
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    return next(new AuthorizationError('Необходима авторизация'));
-  }
-
-  const token = authorization.replace('Bearer ', '');
-  let payload;
-
-  try {
-    payload = jwt.verify(token, 'secret-key');
-  } catch (err) {
-    return next(new AuthorizationError('Необходима авторизация'));
-  }
-
-  req.user = payload;
-
-  User.findById(payload._id)
-    .orFail(() => new NotFoundError(`Не найден пользователь с указанным id: ${payload._id}`))
-    .then((user) => res.send(user))
-    .catch(next);
-};
-
 module.exports = {
   getUsers,
+  getUser,
   getUserByID,
   createUser,
   updateUserProfile,
   updateUserAvatar,
   login,
-  getUser,
 };
