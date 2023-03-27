@@ -10,7 +10,23 @@ const { errors } = require('celebrate');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
-const { createUser, login, updateUserProfile } = require('./controllers/users');
+const {
+  getUsers,
+  getUser,
+  getUserByID,
+  createUser,
+  updateUserProfile,
+  updateUserAvatar,
+  login,
+} = require("./controllers/users");
+const {
+  getCards,
+  createCard,
+  deleteCardByID,
+  putCardLike,
+  deleteCardLike,
+} = require("./controllers/cards");
+
 const auth = require('./middlewares/auth');
 
 const { NOT_FOUND_ERROR } = require('./utils/utils');
@@ -52,6 +68,18 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
+app.get('/users/me', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().alphanum().length(24),
+  }),
+}), getUser);
+
+app.get('/users/:userId', celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().alphanum().length(24),
+  }),
+}), getUserByID);
+
 app.patch('/users/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
@@ -70,7 +98,25 @@ app.post('/cards', celebrate({
     name: Joi.string().required().min(2).max(30),
     link: Joi.string().required().regex(/(https?:\/\/)?([\w\.]+)\.([a-z]{2,6}\.?)(\/[\w\.]*)*\/?$/),
   }),
-}), login);
+}), cardsRouter);
+
+app.delete('/cards/:cardId', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().alphanum().length(24),
+  }),
+}), deleteCardByID);
+
+app.put('/cards/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().alphanum().length(24),
+  }),
+}), putCardLike);
+
+app.delete('/cards/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().alphanum().length(24),
+  }),
+}), deleteCardLike);
 
 // авторизация
 app.use(auth);
@@ -83,8 +129,6 @@ app.use('/cards', auth, cardsRouter);
 app.use('/*', (req, res) => {
   res.status(NOT_FOUND_ERROR).send({ message: 'Запрошенная страница не найдена' });
 });
-
-
 
 app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
