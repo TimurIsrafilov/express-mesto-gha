@@ -2,6 +2,7 @@ const Card = require('../models/card');
 
 const NotFoundError = require('../errors/not-found-error');
 const ValidatationError = require('../errors/validation-error');
+const PermittionError = require('../errors/permittion-error');
 
 const getCards = (req, res, next) => Card.find({})
   .then((cards) => res.send(cards))
@@ -25,7 +26,7 @@ const deleteCardByID = (req, res, next) => Card.findById(req.params.cardId)
     const ownerID = JSON.stringify(req.user._id);
     const userID = JSON.stringify(user.owner);
     if (ownerID !== userID) {
-      return next(new ValidatationError('переданы некорректные данные'));
+      return next(new PermittionError('нельзя удалить чужую карточку'));
     } return Card.findByIdAndRemove(req.params.cardId)
       .orFail()
       .then((card) => res.send(card))
