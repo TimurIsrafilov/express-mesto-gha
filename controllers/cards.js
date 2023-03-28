@@ -31,7 +31,7 @@ const deleteCardByID = (req, res, next) => Card.findById(req.params.cardId)
       .catch((error) => {
         if (error.name === 'CastError') {
           return next(new ValidatationError('переданы некорректные данные'));
-        } return next();
+        } return next(error);
       });
   })
   .catch(next);
@@ -41,14 +41,12 @@ const putCardLike = (req, res, next) => Card.findByIdAndUpdate(
   { $addToSet: { likes: req.user._id } },
   { new: true },
 )
-  .orFail()
+  .orFail(new NotFoundError('переданы некорректные данные'))
   .then((card) => res.send(card))
   .catch((error) => {
     if (error.name === 'CastError') {
       return next(new ValidatationError('переданы некорректные данные'));
-    } if (error.name === 'DocumentNotFoundError') {
-      return next(new NotFoundError(`Передан несуществующий id карточки: ${req.params.cardId}`));
-    } return next();
+    } return next(error);
   });
 
 const deleteCardLike = (req, res, next) => Card.findByIdAndUpdate(
@@ -56,14 +54,12 @@ const deleteCardLike = (req, res, next) => Card.findByIdAndUpdate(
   { $pull: { likes: req.user._id } },
   { new: true },
 )
-  .orFail()
+  .orFail(new NotFoundError('переданы некорректные данные'))
   .then((card) => res.send(card))
   .catch((error) => {
     if (error.name === 'CastError') {
       return next(new ValidatationError('переданы некорректные данные'));
-    } if (error.name === 'DocumentNotFoundError') {
-      return next(new NotFoundError(`Передан несуществующий id карточки: ${req.params.cardId}`));
-    } return next();
+    } return next(error);
   });
 
 module.exports = {

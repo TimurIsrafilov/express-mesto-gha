@@ -36,14 +36,12 @@ const getUser = (req, res, next) => {
 };
 
 const getUserByID = (req, res, next) => User.findById(req.params.userId)
-  .orFail()
+  .orFail(new NotFoundError(`Не найден пользователь с указанным id: ${req.params.userId}`))
   .then((user) => res.send(user))
   .catch((error) => {
     if (error.name === 'CastError') {
       return next(new ValidatationError('переданы некорректные данные'));
-    } if (error.name === 'DocumentNotFoundError') {
-      return next(new NotFoundError(`Не найден пользователь с указанным id: ${req.params.userId}`));
-    } return next();
+    } return next(error);
   });
 
 const createUser = (req, res, next) => {
@@ -82,15 +80,12 @@ const updateUserProfile = (req, res, next) => User.findByIdAndUpdate(
     runValidators: true,
   },
 )
-  // .then((user) => res.send(user))
-  // .catch((error) => {
-  //   if (error.name === 'ValidationError') {
-  //     return next(new ValidatationError('переданы некорректные данные'));
-  //   } return next();
-  // });
-
-    .then((user) => res.send(user))
-    .catch(next);
+  .then((user) => res.send(user))
+  .catch((error) => {
+    if (error.name === 'ValidationError') {
+      return next(new ValidatationError('переданы некорректные данные'));
+    } return next(error);
+  });
 
 const updateUserAvatar = (req, res, next) => User.findByIdAndUpdate(
   req.user._id,
@@ -104,7 +99,7 @@ const updateUserAvatar = (req, res, next) => User.findByIdAndUpdate(
   .catch((error) => {
     if (error.name === 'ValidationError') {
       return next(new ValidatationError('переданы некорректные данные'));
-    } return next();
+    } return next(error);
   });
 
 const login = (req, res, next) => {

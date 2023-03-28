@@ -5,7 +5,9 @@
 // DELETE /cards/:cardId/likes — убрать лайк с карточки
 
 const cardsRouter = require('express').Router();
-// const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
+
+const { linkPattern } = require('../utils/utils');
 
 const {
   getCards,
@@ -16,9 +18,30 @@ const {
 } = require('../controllers/cards');
 
 cardsRouter.get('/', getCards);
-cardsRouter.post('/', createCard);
-cardsRouter.delete('/:cardId', deleteCardByID);
-cardsRouter.put('/:cardId/likes', putCardLike);
-cardsRouter.delete('/:cardId/likes', deleteCardLike);
+
+cardsRouter.post('/', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().regex(linkPattern),
+  }),
+}), createCard);
+
+cardsRouter.delete('/:cardId', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().hex().length(24),
+  }),
+}), deleteCardByID);
+
+cardsRouter.put('/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().hex().length(24),
+  }),
+}), putCardLike);
+
+cardsRouter.delete('/:cardId/likes', celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().hex().length(24),
+  }),
+}), deleteCardLike);
 
 module.exports = cardsRouter;

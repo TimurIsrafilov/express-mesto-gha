@@ -1,11 +1,3 @@
-const BAD_REQUEST = 400;
-const UNAUTHORIZED = 401;
-const NOT_FOUND_ERROR = 404;
-const SERVER_ERROR = 500;
+const linkPattern = /(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/;
 
-module.exports = {
-  BAD_REQUEST,
-  UNAUTHORIZED,
-  NOT_FOUND_ERROR,
-  SERVER_ERROR,
-};
+module.exports = { linkPattern };
