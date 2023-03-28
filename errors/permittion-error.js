@@ -1,8 +1,8 @@
-class ValidatationError extends Error {
+class PermittionError extends Error {
   constructor(message) {
     super(message);
-    this.statusCode = 400;
+    this.statusCode = 403;
   }
 }
 
-module.exports = ValidatationError;
+module.exports = PermittionError;
