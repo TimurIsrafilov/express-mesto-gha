@@ -15,30 +15,26 @@ const createCard = (req, res, next) => Card.create({
   .catch((error) => {
     if (error.name === 'ValidationError') {
       return next(new ValidatationError('переданы некорректные данные'));
-    } return next();
+    } return next(error);
   });
 
 const deleteCardByID = (req, res, next) => Card.findById(req.params.cardId)
-  .orFail(next)
+  .orFail(new NotFoundError('переданы некорректные данные'))
   .then((user) => {
-    // const { ownerID } = req.user._id;
-    // const { userID } = user.owner;
     const ownerID = JSON.stringify(req.user._id);
     const userID = JSON.stringify(user.owner);
     if (ownerID !== userID) {
       return next(new PermittionError('нельзя удалить чужую карточку'));
     } return Card.findByIdAndRemove(req.params.cardId)
-      .orFail()
+      .orFail(new NotFoundError('переданы некорректные данные'))
       .then((card) => res.send(card))
       .catch((error) => {
         if (error.name === 'CastError') {
           return next(new ValidatationError('переданы некорректные данные'));
-        }
-        if (error.name === 'DocumentNotFoundError') {
-          return next(new NotFoundError(`Не найдена карта с указанным id: ${req.params.cardId}`));
         } return next();
       });
-  });
+  })
+  .catch(next);
 
 const putCardLike = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,

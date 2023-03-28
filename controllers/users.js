@@ -82,12 +82,15 @@ const updateUserProfile = (req, res, next) => User.findByIdAndUpdate(
     runValidators: true,
   },
 )
-  .then((user) => res.send(user))
-  .catch((error) => {
-    if (error.name === 'ValidationError') {
-      return next(new ValidatationError('переданы некорректные данные'));
-    } return next();
-  });
+  // .then((user) => res.send(user))
+  // .catch((error) => {
+  //   if (error.name === 'ValidationError') {
+  //     return next(new ValidatationError('переданы некорректные данные'));
+  //   } return next();
+  // });
+
+    .then((user) => res.send(user))
+    .catch(next);
 
 const updateUserAvatar = (req, res, next) => User.findByIdAndUpdate(
   req.user._id,

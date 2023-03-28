@@ -5,12 +5,20 @@ const rateLimit = require('express-rate-limit');
 const { PORT = 3000 } = process.env;
 const app = express();
 
+const NotFoundError = require('./errors/not-found-error');
+const ValidatationError = require('./errors/validation-error');
+const DuplicationError = require('./errors/duplication-error');
+const AuthorizationError = require('./errors/authorization-error');
+const PermittionError = require('./errors/permittion-error');
+
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
 const linkPattern = /(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/;
+
+
 
 const {
   getUser, getUserByID, createUser, login,
@@ -120,6 +128,13 @@ app.use('/*', (req, res) => {
 });
 
 app.use((err, req, res, next) => {
+
+    if (err.name === 'SyntaxError') {
+      return next(new ValidatationError('переданы некорректные данные'));
+  }  if (err.name === 'ValidationError') {
+    throw new ValidatationError('переданы некорректные данные');
+  }
+
   // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
 
