@@ -4,8 +4,9 @@
 // PUT /cards/:cardId/likes — поставить лайк карточке
 // DELETE /cards/:cardId/likes — убрать лайк с карточки
 
-const cardsRouter = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const { errors } = require('celebrate');
+const cardsRouter = require('express').Router();
 
 const { linkPattern } = require('../utils/utils');
 
@@ -43,5 +44,7 @@ cardsRouter.delete('/:cardId/likes', celebrate({
     cardId: Joi.string().hex().length(24),
   }),
 }), deleteCardLike);
+
+cardsRouter.use(errors());
 
 module.exports = cardsRouter;

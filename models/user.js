@@ -17,10 +17,12 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     validate: {
-      validator(v) {
-        return validator.isURL(v);
-      },
-      message: 'необходимо ввести url',
+      validator: (value) => validator.isURL(value, {
+        protocols: ['http', 'https', 'ftp'],
+        require_tld: true,
+        require_protocol: true,
+      }),
+      message: 'необходимо ввести URL',
     },
     default:
       'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
@@ -43,12 +45,10 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.set('toJSON', {
-  transform(doc, ret) {
-    // eslint-disable-next-line no-param-reassign
-    delete ret.password;
-    return ret;
-  },
-});
+userSchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  return obj;
+};
 
 module.exports = mongoose.model('User', userSchema);

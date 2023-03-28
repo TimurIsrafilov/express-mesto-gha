@@ -5,8 +5,9 @@
 // PATCH /users/me/avatar — обновляет аватар
 // GET /users/me - возвращает информацию о текущем пользователе
 
-const usersRouter = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const { errors } = require('celebrate');
+const usersRouter = require('express').Router();
 
 const { linkPattern } = require('../utils/utils');
 
@@ -44,5 +45,7 @@ usersRouter.patch('/me/avatar', celebrate({
     avatar: Joi.string().required().regex(linkPattern),
   }),
 }), updateUserAvatar);
+
+usersRouter.use(errors());
 
 module.exports = usersRouter;

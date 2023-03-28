@@ -8,6 +8,8 @@ const app = express();
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
 
+// const { NOT_FOUND_ERROR } = require('./utils/utils');
+
 const usersRouter = require('./routes/users');
 const cardsRouter = require('./routes/cards');
 
@@ -30,6 +32,7 @@ const limiter = rateLimit({
 });
 
 app.use(express.json());
+
 app.use(limiter);
 
 app.post('/signin', celebrate({
@@ -52,8 +55,6 @@ app.post('/signup', celebrate({
 // авторизация
 app.use(auth);
 
-app.use(errors());
-
 // роуты, которым авторизация нужна
 app.use('/users', auth, usersRouter);
 app.use('/cards', auth, cardsRouter);
@@ -73,6 +74,8 @@ app.use((err, req, res, next) => {
 
   next();
 });
+
+app.use(errors());
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

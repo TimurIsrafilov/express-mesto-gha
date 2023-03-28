@@ -11,10 +11,12 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     validate: {
-      validator(v) {
-        return validator.isURL(v);
-      },
-      message: 'необходимо ввести url',
+      validator: (value) => validator.isURL(value, {
+        protocols: ['http', 'https', 'ftp'],
+        require_tld: true,
+        require_protocol: true,
+      }),
+      message: 'необходимо ввести URL',
     },
     required: true,
   },
