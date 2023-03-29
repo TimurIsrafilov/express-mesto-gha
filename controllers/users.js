@@ -11,29 +11,10 @@ const getUsers = (req, res, next) => User.find({})
   .then((users) => res.send(users))
   .catch(next);
 
-const getUser = (req, res, next) => {
-  const { authorization } = req.headers;
-
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    return next(new AuthorizationError('Необходима авторизация'));
-  }
-
-  const token = authorization.replace('Bearer ', '');
-  let payload;
-
-  try {
-    payload = jwt.verify(token, 'secret-key');
-  } catch (err) {
-    return next(new AuthorizationError('Необходима авторизация'));
-  }
-
-  req.user = payload;
-
-  return User.findById(payload._id)
-    .orFail(() => new NotFoundError(`Не найден пользователь с указанным id: ${payload._id}`))
-    .then((user) => res.send(user))
-    .catch(next);
-};
+const getUser = (req, res, next) => User.findById(req.user._id)
+  .orFail(() => new NotFoundError(`Не найден пользователь с указанным id: ${req.user._id}`))
+  .then((user) => res.send(user))
+  .catch(next);
 
 const getUserByID = (req, res, next) => User.findById(req.params.userId)
   .orFail(new NotFoundError(`Не найден пользователь с указанным id: ${req.params.userId}`))
@@ -68,7 +49,7 @@ const createUser = (req, res, next) => {
         return next(new ValidatationError('переданы некорректные данные'));
       } if (error.code === 11000) {
         return next(new DuplicationError('пользователь существует'));
-      } return next();
+      } return next(error);
     });
 };
 

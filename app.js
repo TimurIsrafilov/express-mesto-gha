@@ -53,15 +53,16 @@ app.post('/signup', celebrate({
 // авторизация
 app.use(auth);
 
-app.use(errors());
-
 // роуты, которым авторизация нужна
 app.use('/users', auth, usersRouter);
+app.use('/users/me', auth, usersRouter);
 app.use('/cards', auth, cardsRouter);
 app.use('/*', (req, res, next) => {
   // res.status(NOT_FOUND_ERROR).send({ message: 'Запрошенная страница не найдена' });
   next(new NotFoundError('Запрошенная страница не найдена'));
 });
+
+app.use(errors());
 
 app.use((err, req, res, next) => {
   // если у ошибки нет статуса, выставляем 500
